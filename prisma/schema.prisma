@@ -1,0 +1,91 @@
+// Prisma Schema untuk Sistem Perhitungan Data Tunggakan
+// Database: MySQL - si_tunggakan
+// Prisma 7: url dikonfigurasi di prisma.config.ts, bukan di sini
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ============================================================
+// MODEL AUTHENTICATION
+// ============================================================
+
+// Model user untuk login ke sistem
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(100)
+  email     String    @unique @db.VarChar(150)
+  password  String    @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relasi: satu user bisa punya banyak token reset password
+  passwordResetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+// Token sementara untuk proses reset password
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+// Model untuk mencatat setiap proses import file Excel
+model Import {
+  id           Int                  @id @default(autoincrement())
+  fileName     String               @db.VarChar(255)
+  totalRows    Int                  @default(0)
+  status       ImportStatus         @default(pending)
+  uploadedBy   String               @default("") @db.VarChar(100)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  // Relasi: satu Import memiliki banyak CustomerTunggakan
+  customerTunggakans CustomerTunggakan[]
+
+  @@map("imports")
+}
+
+// Status proses import Excel
+enum ImportStatus {
+  pending
+  processing
+  completed
+  failed
+}
+
+// Model untuk menyimpan data tunggakan per pelanggan
+model CustomerTunggakan {
+  id        Int      @id @default(autoincrement())
+  importId  Int
+  unitap    String   @db.VarChar(100)
+  unitup    String   @db.VarChar(100)
+  idpel     String   @db.VarChar(50)
+  kogol     String   @db.VarChar(50)
+  lembar    Int      @default(0)
+  // RPPTL: Rencana Penagihan PTL — nilai nominal tagihan (rupiah)
+  // Nama header Excel dikonfigurasi di: app/api/import/route.ts (RPPTL_HEADER_ALIASES)
+  // Tipe Decimal(15,0) aman untuk nilai rupiah tanpa desimal
+  rpptl     Decimal  @default(0) @db.Decimal(15, 0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relasi: setiap CustomerTunggakan milik satu Import
+  import    Import   @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  @@map("customer_tunggakans")
+}
