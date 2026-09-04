@@ -34,7 +34,9 @@ function createPrismaClient(): PrismaClient {
     user,
     password,
     database,
-    connectionLimit: 5,
+    connectionLimit: 1,
+    connectTimeout: 30000,
+    acquireTimeout: 30000,
   })
 
   return new PrismaClient({ adapter })
@@ -42,4 +44,4 @@ function createPrismaClient(): PrismaClient {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient()
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+globalForPrisma.prisma = prisma
