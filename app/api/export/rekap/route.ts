@@ -268,7 +268,7 @@ export async function GET(request: Request) {
     ws[EC(totalRowIdx,colTotPlg)] = totCell(`SUM(${CL(colTotPlg)}${dataRowStart}:${CL(colTotPlg)}${dataRowEnd})`)
     ws[EC(totalRowIdx,colTotRp)]  = totCell(`SUM(${CL(colTotRp)}${dataRowStart}:${CL(colTotRp)}${dataRowEnd})`)
 
-    ws['!ref'] = XLSXStyle.utils.encode_range({ r:0,c:0 }, { r:totalRowIdx, c:totalCols-1 })
+    ws['!ref'] = XLSXStyle.utils.encode_range({ r:0,c:0 }, { r:totalRowIdx, c:totalCols-1 }) as unknown as object
     const merges: XLSXStyle.Range[] = [
       { s:{r:0,c:0}, e:{r:1,c:0} }, { s:{r:0,c:1}, e:{r:1,c:1} },
     ]
@@ -368,7 +368,7 @@ export async function GET(request: Request) {
     ws[EC(totalRowIdx,colTotPlg)] = totCell(`SUM(${CL(colTotPlg)}${dataRowStart}:${CL(colTotPlg)}${dataRowEnd})`)
     ws[EC(totalRowIdx,colTotRp)]  = totCell(`SUM(${CL(colTotRp)}${dataRowStart}:${CL(colTotRp)}${dataRowEnd})`)
 
-    ws['!ref'] = XLSXStyle.utils.encode_range({ r:0,c:0 }, { r:totalRowIdx, c:totalCols-1 })
+    ws['!ref'] = XLSXStyle.utils.encode_range({ r:0,c:0 }, { r:totalRowIdx, c:totalCols-1 }) as unknown as object
     const merges: XLSXStyle.Range[] = [
       { s:{r:0,c:0}, e:{r:1,c:0} }, { s:{r:0,c:1}, e:{r:1,c:1} },
     ]
@@ -408,9 +408,4 @@ export async function GET(request: Request) {
     },
   })
 
-  function colLetter(c: number): string {
-    let s='', n=c+1
-    while (n>0) { s=String.fromCharCode(65+((n-1)%26))+s; n=Math.floor((n-1)/26) }
-    return s
-  }
 }

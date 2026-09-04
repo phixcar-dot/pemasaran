@@ -127,11 +127,11 @@ export async function GET(request: Request) {
 
   // ── Bangun PDF ───────────────────────────────────────────────
   const doc = new PDFDocument({ size:'A4', layout:'landscape', margin:30 })
-  const chunks: Buffer[] = []
-  doc.on('data', (chunk:Buffer) => chunks.push(chunk))
+  const chunks: Uint8Array[] = []
+  doc.on('data', (chunk: Uint8Array) => chunks.push(chunk))
 
   const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
-    doc.on('end',   () => resolve(Buffer.concat(chunks)))
+    doc.on('end',   () => resolve(Buffer.concat(chunks as Buffer[])))
     doc.on('error', reject)
 
     const pageW=841.89, margin=30, usableW=pageW-margin*2
@@ -269,7 +269,7 @@ export async function GET(request: Request) {
   if (filterKogol)    parts.push(`kogol-${filterKogol}`)
   if (filterLembar)   parts.push(`lembar-${filterLembar}`)
 
-  return new Response(pdfBuffer, {
+  return new Response(new Uint8Array(pdfBuffer), {
     status: 200,
     headers: {
       'Content-Type':        'application/pdf',
